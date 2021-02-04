@@ -43,11 +43,10 @@ namesTarget.addEventListener('drop', function(e) {
     var namesTarget =  document.getElementById('namesTarget');
     if(namesTarget.getElementsByClassName('name') && namesTarget.getElementsByClassName('name').length < 40 ) {
         var data = e.dataTransfer.getData("text/name")
-        var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);
-
+        var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);        
         if('Repeat Until Find Door' == data) {
             var blockidRepeat = 'block-repeat';
-            namesTarget.innerHTML += "<div id='" + blockidRepeat + "' class='name block-style repeat' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>";
+            namesTarget.innerHTML += "<div id='" + blockidRepeat + "' class='name block-style repeat' onclick='deleteBlock(\"" + blockidRepeat + "\")' >" + data + "</div>";
             initDragAndDropOnRepeat(blockidRepeat);   
         } else {
             namesTarget.innerHTML += "<div id='" + blockid + "' class='name block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>";    
@@ -64,24 +63,21 @@ function initDragAndDropOnRepeat(blockidRepeatId) {
     var blockRepeat = document.getElementById(blockidRepeatId);
 
     blockRepeat.addEventListener('dragover', function(e) {
-        console.log('block dragover');
         if (!hasData("text/name", e)) return
         e.preventDefault()
         return false
     })
     
     blockRepeat.addEventListener('dragenter', function(e) {
-        console.log('block dragenter');
         if (!hasData("text/name", e)) return
         e.target.classList.add("dragover")
     })
     
     blockRepeat.addEventListener('dragleave', onLeave)
     blockRepeat.addEventListener('drop', function(e) {
-        console.log('block drop');
 
         var block =  document.getElementById(blockidRepeatId);
-        if(block.getElementsByClassName('name') && block.getElementsByClassName('name').length < 40 ) {
+        if(block.getElementsByClassName('name') && block.getElementsByClassName('name').length < 2 ) {
             var data = e.dataTransfer.getData("text/name")
             var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);
             block.innerHTML += "<div id='" + blockid + "' class='name block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>"    

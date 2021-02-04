@@ -204,8 +204,7 @@ Mazing.prototype.start = function() {
   var namesTarget =  document.getElementById('namesTarget');
   if(namesTarget.getElementsByClassName('name') && namesTarget.getElementsByClassName('name').length > 0 ) {
     var names = namesTarget.getElementsByClassName('name');
-    var i = 0;
-    this.iterateWalking(this,names,i);
+    this.iterateWalking(this,names,0);
   }
 };
 
@@ -213,14 +212,31 @@ Mazing.prototype.iterateWalking = function(maze,names,index) {
   var namesTarget =  document.getElementById('namesTarget');
   setTimeout(function() {   
     maze.walking(maze,names[index]); 
-    // index++;
     namesTarget.getElementsByClassName("name").item(0).remove();
-    // console.log(index,names.length);
     if (names.length>0) {
       maze.iterateWalking(maze,names,index);
     } 
   }, 500)
 }
+
+var swap = false;
+Mazing.prototype.iterateWalkingForLoop = function(maze,names,index) {
+  setTimeout(function() {   
+    maze.walking(maze,names[index]); 
+    if(names.length == 2)  {
+      if(swap) {
+        maze.iterateWalkingForLoop(maze,names,0);
+        swap = false;
+      } else {
+        maze.iterateWalkingForLoop(maze,names,1);
+        swap = true;
+      }
+    } else {
+      maze.iterateWalkingForLoop(maze,names,index);
+    }
+  }, 500)
+}
+
 
 Mazing.prototype.walking = function(maze,command) {
 
@@ -231,26 +247,35 @@ Mazing.prototype.walking = function(maze,command) {
     case 'Left': // left
       maze.mazeContainer.classList.remove("face-right");
       tryPos.y--;
+      maze.tryMoveHero(tryPos);    
       break;
 
     case 'Up': // up
       tryPos.x--;
+      maze.tryMoveHero(tryPos);    
+
       break;
 
     case 'Right': // right
-    maze.mazeContainer.classList.add("face-right");
+      maze.mazeContainer.classList.add("face-right");
       tryPos.y++;
+      maze.tryMoveHero(tryPos);    
+
       break;
 
     case 'Down': // down
       tryPos.x++;
+      maze.tryMoveHero(tryPos);    
       break;
 
-    default:
-      return;
-
   }
-  maze.tryMoveHero(tryPos);    
+
+  if(text.startsWith("Repeat Until Find Door")) {
+    var repeatBlock = document.getElementById('block-repeat');
+    var blocks = repeatBlock.getElementsByClassName('name');
+    this.iterateWalkingForLoop(this,blocks,0);
+  
+  }
 
 };
 
