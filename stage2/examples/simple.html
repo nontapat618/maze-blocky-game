@@ -1,0 +1,59 @@
+<html>
+
+  <head>
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <img id="img" src="img/smile.png"></img>
+    <div id="blue" class="square blue" draggable="true"></div>
+    <div id="target" class="target">
+    </div>
+  </body>
+
+  <script type='text/javascript'>
+    var blue = document.getElementById('blue')
+    var target = document.getElementById('target')
+
+    // source events
+    blue.addEventListener('dragstart', function(e) {
+        console.log("dragstart", e)
+        e.dataTransfer.setData('text/plain', '') // won't even work in FF unless it has some data
+    })
+
+    blue.addEventListener('dragend', function(e) {
+        console.log("dragend")
+    })
+    
+    blue.addEventListener('drag', function(e) {
+        console.log('drag')
+    })
+
+
+    // target events
+    target.addEventListener('dragover', function(e) {
+        console.log("dragover")
+        e.preventDefault()
+        return false
+    })
+
+    target.addEventListener('dragenter', function(e) {
+        console.log("dragenter", e)
+        e.target.classList.add("dragover")
+    })
+
+    // we want to call this from dragleave and drop
+    function onLeave(e) {
+        e.target.classList.remove("dragover")
+    }
+
+    target.addEventListener('dragleave', onLeave)
+
+    // dragleave does not fire on a drop event, so let's call onLeave to cancel the visual
+    target.addEventListener('drop', function(e) {
+        console.log("drop", e)
+        onLeave(e) 
+    })
+  </script>
+
+</html>
