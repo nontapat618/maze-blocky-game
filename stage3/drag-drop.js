@@ -38,6 +38,8 @@ namesTarget.addEventListener('dragenter', function(e) {
 })
 
 namesTarget.addEventListener('dragleave', onLeave)
+
+var blockRepeatCount = 0;
 namesTarget.addEventListener('drop', function(e) {
 
     var namesTarget =  document.getElementById('namesTarget');
@@ -45,9 +47,10 @@ namesTarget.addEventListener('drop', function(e) {
         var data = e.dataTransfer.getData("text/name")
         var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);        
         if('Repeat Until Find Door' == data) {
-            var blockidRepeat = 'block-repeat';
+            blockRepeatCount++;
+            var blockidRepeat = 'block-repeat' + blockRepeatCount;
             namesTarget.innerHTML += "<div id='" + blockidRepeat + "' class='name block-style repeat' onclick='deleteBlock(\"" + blockidRepeat + "\")' >" + data + "</div>";
-            initDragAndDropOnRepeat(blockidRepeat);   
+            initDragAndDropOnRepeat(blockidRepeat,blockRepeatCount);   
         } else {
             namesTarget.innerHTML += "<div id='" + blockid + "' class='name block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>";    
         }
@@ -57,7 +60,7 @@ namesTarget.addEventListener('drop', function(e) {
 })
 
 
-function initDragAndDropOnRepeat(blockidRepeatId) {
+function initDragAndDropOnRepeat(blockidRepeatId,blockRepeatCount) {
 
 
     var blockRepeat = document.getElementById(blockidRepeatId);
@@ -77,13 +80,27 @@ function initDragAndDropOnRepeat(blockidRepeatId) {
     blockRepeat.addEventListener('drop', function(e) {
 
         var block =  document.getElementById(blockidRepeatId);
+        var data = e.dataTransfer.getData("text/name") 
+        var breakIfId = 'break' + blockRepeatCount;
+
+        if(data.startsWith('Break If Found')) {
+            if(!document.getElementById(breakIfId))  {
+                data += ' Key';
+                block.innerHTML += "<div id='" + breakIfId + "' class='block-style break' style='float:right;' onclick='deleteBlock(\"" + breakIfId + "\")' >" + data + "</div>"    
+                e.stopPropagation();
+                onLeave(e);
+                return;    
+            }
+        }
+
+
         if(block.getElementsByClassName('name') && block.getElementsByClassName('name').length < 2 ) {
-            var data = e.dataTransfer.getData("text/name")
             var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);
             block.innerHTML += "<div id='" + blockid + "' class='name block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>"    
+            e.stopPropagation();
+            onLeave(e);
+    
         }
-        e.stopPropagation();
-        onLeave(e)
     })
     
 

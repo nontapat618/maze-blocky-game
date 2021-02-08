@@ -220,19 +220,23 @@ Mazing.prototype.iterateWalking = function(maze,names,index) {
 }
 
 var swap = false;
-Mazing.prototype.iterateWalkingForLoop = function(maze,names,index) {
+Mazing.prototype.iterateWalkingForLoop = function(maze,names,repeatBlockElement,index) {
   setTimeout(function() {   
     maze.walking(maze,names[index]); 
+    var breakElement = repeatBlockElement.getElementsByClassName('break');
+    if(breakElement && breakElement.length > 0 && maze.heroHasKey) {
+      return;
+    }
     if(names.length == 2)  {
       if(swap) {
-        maze.iterateWalkingForLoop(maze,names,0);
+        maze.iterateWalkingForLoop(maze,names,repeatBlockElement,0);
         swap = false;
       } else {
-        maze.iterateWalkingForLoop(maze,names,1);
+        maze.iterateWalkingForLoop(maze,names,repeatBlockElement,1);
         swap = true;
       }
     } else {
-      maze.iterateWalkingForLoop(maze,names,index);
+      maze.iterateWalkingForLoop(maze,names,repeatBlockElement,index);
     }
   }, 500)
 }
@@ -271,9 +275,10 @@ Mazing.prototype.walking = function(maze,command) {
   }
 
   if(text.startsWith("Repeat Until Find Door")) {
-    var repeatBlock = document.getElementById('block-repeat');
-    var blocks = repeatBlock.getElementsByClassName('name');
-    this.iterateWalkingForLoop(this,blocks,0);
+    swap = false;
+    var repeatBlockElement = document.getElementById(command.id);;
+    var blocks = repeatBlockElement.getElementsByClassName('name');
+    this.iterateWalkingForLoop(this,blocks,repeatBlockElement,0);
   
   }
 

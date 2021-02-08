@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="drag-drop.css">
 
 <div id="maze_container">
-  <div id="maze" data-steps="12">
+  <div id="maze" data-steps="30">
     <div>
       <div class="wall"></div>
       <div class="wall"></div>
@@ -187,6 +187,7 @@
   <div class="name" draggable="true">Left</div>
   <div class="name" draggable="true">Right</div>
   <div class="name" draggable="true">Repeat Until Find Door</div>
+  <div class="name" draggable="true">Break If Found</div>
 </div>
 
 <div id="namesTarget" class="target names">
@@ -224,6 +225,5 @@
 
 
   makeMaze("maze_container", 6, 12);
-
 
 </script>
