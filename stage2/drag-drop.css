@@ -27,7 +27,7 @@
   
   
   
-  .name, .food {
+  .name, .food,.repeat-block {
     float: left;
     border: solid 1px #00F;
     padding: 3px;
@@ -63,7 +63,7 @@
     right: 0px;
   }
   
-  .name.dragging {
+  .name.dragging,.repeat-block.dragging {
     opacity: 0.3;
     border: dotted 1px #00F;
   }

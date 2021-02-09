@@ -77,10 +77,10 @@ function initDragAndDropOnRepeat(blockidRepeatId) {
     blockRepeat.addEventListener('drop', function(e) {
 
         var block =  document.getElementById(blockidRepeatId);
-        if(block.getElementsByClassName('name') && block.getElementsByClassName('name').length < 2 ) {
+        if(block.getElementsByClassName('repeat-block') && block.getElementsByClassName('repeat-block').length < 2 ) {
             var data = e.dataTransfer.getData("text/name")
-            var blockid = 'block' + (namesTarget.getElementsByClassName('name').length + 1);
-            block.innerHTML += "<div id='" + blockid + "' class='name block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>"    
+            var blockid = 'block' + (namesTarget.getElementsByClassName('repeat-block').length + 1);
+            block.innerHTML += "<div id='" + blockid + "' class='repeat-block block-style' onclick='deleteBlock(\"" + blockid + "\")' >" + data + "</div>"    
         }
         e.stopPropagation();
         onLeave(e)
