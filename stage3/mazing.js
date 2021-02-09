@@ -27,6 +27,7 @@ function Mazing(id) {
   this.heroPos = {};
   this.heroHasKey = false;
   this.childMode = false;
+  this.finish = false;
 
   this.utter = null;
 
@@ -106,6 +107,7 @@ Mazing.prototype.heroWins = function() {
   this.mazeScore.classList.remove("has-key");
   this.maze[this.heroPos].classList.remove("door");
   this.heroScore--;
+  this.finish=true;
   this.gameFinish("you finished !!!");
 };
 
@@ -199,50 +201,40 @@ Mazing.prototype.mazeKeyPressHandler = function(e) {
   e.preventDefault();
 };
 
-Mazing.prototype.start = function() {
+Mazing.prototype.start = async function() {
 
   var namesTarget =  document.getElementById('namesTarget');
+
+
   if(namesTarget.getElementsByClassName('name') && namesTarget.getElementsByClassName('name').length > 0 ) {
     var names = namesTarget.getElementsByClassName('name');
-    this.iterateWalking(this,names,0);
+    
+    for(const name of names) {
+      console.log('start');
+
+      await this.processCommand(this,name);
+    }
   }
+
 };
 
-Mazing.prototype.iterateWalking = function(maze,names,index) {
-  var namesTarget =  document.getElementById('namesTarget');
-  setTimeout(function() {   
-    maze.walking(maze,names[index]); 
-    namesTarget.getElementsByClassName("name").item(0).remove();
-    if (names.length>0) {
-      maze.iterateWalking(maze,names,index);
-    } 
-  }, 500)
+Mazing.prototype.processCommand = async function(maze,name) {
+  
+  console.log('processCommand');
+
+  const walking = () => new Promise(resolve => {
+    setTimeout(async function() {   
+      resolve(maze.walking(maze,name));
+    }, 500);  
+  });
+  
+  await walking();
+
 }
 
-var swap = false;
-Mazing.prototype.iterateWalkingForLoop = function(maze,names,repeatBlockElement,index) {
-  setTimeout(function() {   
-    maze.walking(maze,names[index]); 
-    var breakElement = repeatBlockElement.getElementsByClassName('break');
-    if(breakElement && breakElement.length > 0 && maze.heroHasKey) {
-      return;
-    }
-    if(names.length == 2)  {
-      if(swap) {
-        maze.iterateWalkingForLoop(maze,names,repeatBlockElement,0);
-        swap = false;
-      } else {
-        maze.iterateWalkingForLoop(maze,names,repeatBlockElement,1);
-        swap = true;
-      }
-    } else {
-      maze.iterateWalkingForLoop(maze,names,repeatBlockElement,index);
-    }
-  }, 500)
-}
+Mazing.prototype.walking = async function(maze,command) {
 
-
-Mazing.prototype.walking = function(maze,command) {
+  console.log('Walking');
 
   let text = command.textContent;
   var tryPos = new Position(maze.heroPos.x, maze.heroPos.y);
@@ -251,20 +243,18 @@ Mazing.prototype.walking = function(maze,command) {
     case 'Left': // left
       maze.mazeContainer.classList.remove("face-right");
       tryPos.y--;
-      maze.tryMoveHero(tryPos);    
+      maze.tryMoveHero(tryPos);          
       break;
 
     case 'Up': // up
       tryPos.x--;
       maze.tryMoveHero(tryPos);    
-
       break;
 
     case 'Right': // right
       maze.mazeContainer.classList.add("face-right");
       tryPos.y++;
       maze.tryMoveHero(tryPos);    
-
       break;
 
     case 'Down': // down
@@ -275,15 +265,132 @@ Mazing.prototype.walking = function(maze,command) {
   }
 
   if(text.startsWith("Repeat Until Find Door")) {
-    swap = false;
-    var repeatBlockElement = document.getElementById(command.id);;
-    var blocks = repeatBlockElement.getElementsByClassName('name');
-    this.iterateWalkingForLoop(this,blocks,repeatBlockElement,0);
-  
+    var repeatBlock = document.getElementById(command.id);
+    var blocks = repeatBlock.getElementsByClassName('repeat-block');
+    var breakBlock = repeatBlock.getElementsByClassName('break');
+    if(breakBlock && breakBlock.length > 0) {
+      while(!maze.heroHasKey) {
+        for(const block of blocks) {
+          await this.processLoopCommand(maze,block);
+          console.log('eiei');
+        }   
+      }  
+    } else {
+      console.log('asdsadsa');
+      while(!maze.finish) {
+        for(const block of blocks) {
+          await this.processLoopCommand(maze,block);
+        }   
+      }  
+    }
+    // const waitLoop = async () => new Promise(resolve => {
+    //   maze.iterateWalkingForLoop(maze,blocks,0);
+    //   resolve(10);
+    // });
+    // var ss = await waitLoop();  
   }
+
+  return Promise.resolve(10);
 
 };
 
+Mazing.prototype.processLoopCommand = async function(maze,block) {
+  
+  const loopWalking = () => new Promise(resolve => {
+    setTimeout(async function() {   
+      resolve(maze.walking(maze,block));
+    }, 500);  
+  });
+  
+  await loopWalking();
+
+
+}
+
+
+
+
+// Mazing.prototype.iterateWalking = async function(maze,names,index) {
+//   setTimeout(async function() {   
+//     if (index < names.length) {
+//       console.log('indexxxx' + index + "   " + new Date().getSeconds());
+//       const waittt = async () => new Promise(resolve => {
+//         var ss = maze.walking(maze,names[index],index);
+//         resolve(ss);
+//       })
+
+
+//       var value = await waittt();
+//       console.log(value);
+//       maze.iterateWalking(maze,names,++index);        
+//     } 
+
+//   }, 1000)
+// }
+
+// var swap = false;
+// Mazing.prototype.iterateWalkingForLoop = async function(maze,names,index) {
+  
+//   setTimeout(async function() {   
+//     var ss = await maze.walking(maze,names[index],false); 
+//     if(names.length == 2)  {
+//       if(swap) {
+//         ss = await maze.iterateWalkingForLoop(maze,names,0);
+//         swap = false;
+//       } else {
+//         ss = await maze.iterateWalkingForLoop(maze,names,1);
+//         swap = true;
+//       }
+//     } else {
+//       ss = await maze.iterateWalkingForLoop(maze,names,index);
+//     }
+//   }, 1000)
+// }
+
+
+// Mazing.prototype.walking = async function(maze,command) {
+
+//   let text = command.textContent;
+//   var tryPos = new Position(maze.heroPos.x, maze.heroPos.y);
+//   switch(text)
+//   {
+//     case 'Left': // left
+//       maze.mazeContainer.classList.remove("face-right");
+//       tryPos.y--;
+//       maze.tryMoveHero(tryPos);          
+//       break;
+
+//     case 'Up': // up
+//       tryPos.x--;
+//       maze.tryMoveHero(tryPos);    
+//       break;
+
+//     case 'Right': // right
+//       maze.mazeContainer.classList.add("face-right");
+//       tryPos.y++;
+//       maze.tryMoveHero(tryPos);    
+//       break;
+
+//     case 'Down': // down
+//       tryPos.x++;
+//       maze.tryMoveHero(tryPos);    
+//       break;
+
+//   }
+
+//   if(text.startsWith("Repeat Until Find Door")) {
+//     var repeatBlock = document.getElementById('block-repeat');
+//     var blocks = repeatBlock.getElementsByClassName('repeat-block');
+//     const waitLoop = async () => new Promise(resolve => {
+//       maze.iterateWalkingForLoop(maze,blocks,0);
+//       resolve(10);
+//     });
+//     var ss = await waitLoop();  
+//   }
+
+//   return Promise.resolve(10);
+
+// };
 
 Mazing.prototype.setChildMode = function() {
   this.childMode = true;
