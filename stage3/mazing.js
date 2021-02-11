@@ -210,6 +210,8 @@ Mazing.prototype.start = async function() {
     var names = namesTarget.getElementsByClassName('name');
     
     for(const name of names) {
+      console.log('start');
+
       await this.processCommand(this,name);
     }
   }
@@ -218,6 +220,8 @@ Mazing.prototype.start = async function() {
 
 Mazing.prototype.processCommand = async function(maze,name) {
   
+  console.log('processCommand');
+
   const walking = () => new Promise(resolve => {
     setTimeout(async function() {   
       resolve(maze.walking(maze,name));
@@ -229,6 +233,8 @@ Mazing.prototype.processCommand = async function(maze,name) {
 }
 
 Mazing.prototype.walking = async function(maze,command) {
+
+  console.log('Walking');
 
   let text = command.textContent;
   var tryPos = new Position(maze.heroPos.x, maze.heroPos.y);
@@ -259,12 +265,23 @@ Mazing.prototype.walking = async function(maze,command) {
   }
 
   if(text.startsWith("Repeat Until Find Door")) {
-    var repeatBlock = document.getElementById('block-repeat');
+    var repeatBlock = document.getElementById(command.id);
     var blocks = repeatBlock.getElementsByClassName('repeat-block');
-    while(!maze.finish) {
-      for(const block of blocks) {
-        await this.processLoopCommand(maze,block);
-      }   
+    var breakBlock = repeatBlock.getElementsByClassName('break');
+    if(breakBlock && breakBlock.length > 0) {
+      while(!maze.heroHasKey) {
+        for(const block of blocks) {
+          await this.processLoopCommand(maze,block);
+          console.log('eiei');
+        }   
+      }  
+    } else {
+      console.log('asdsadsa');
+      while(!maze.finish) {
+        for(const block of blocks) {
+          await this.processLoopCommand(maze,block);
+        }   
+      }  
     }
     // const waitLoop = async () => new Promise(resolve => {
     //   maze.iterateWalkingForLoop(maze,blocks,0);
